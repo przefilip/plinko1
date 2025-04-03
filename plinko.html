@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plinko Game</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        canvas { background: #eee; display: block; margin: 20px auto; }
+        button { padding: 10px 20px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>Plinko Game</h1>
+    <button onclick="dropBall()">Wrzuć kulkę</button>
+    <canvas id="plinkoCanvas" width="400" height="500"></canvas>
+    
+    <script>
+        const canvas = document.getElementById("plinkoCanvas");
+        const ctx = canvas.getContext("2d");
+        const balls = [];
+        const pegs = [];
+        const slots = [50, 100, 200, 500, 200, 100, 50];
+        
+        class Ball {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 5;
+                this.dy = 2;
+            }
+            move() {
+                this.y += this.dy;
+                if (this.y >= canvas.height - 50) {
+                    this.dy = 0;
+                    this.x = Math.round(this.x / 50) * 50;
+                }
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = "red";
+                ctx.fill();
+                ctx.closePath();
+            }
+        }
+        
+        function createPegs() {
+            for (let row = 0; row < 6; row++) {
+                for (let col = 0; col <= row; col++) {
+                    pegs.push({ x: 50 * col + 100 - row * 25, y: 50 * row + 100 });
+                }
+            }
+        }
+        
+        function drawPegs() {
+            ctx.fillStyle = "black";
+            pegs.forEach(peg => {
+                ctx.beginPath();
+                ctx.arc(peg.x, peg.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.closePath();
+            });
+        }
+        
+        function drawSlots() {
+            for (let i = 0; i < slots.length; i++) {
+                ctx.fillStyle = "blue";
+                ctx.fillRect(i * 50 + 75, canvas.height - 40, 50, 40);
+                ctx.fillStyle = "white";
+                ctx.fillText(slots[i], i * 50 + 90, canvas.height - 15);
+            }
+        }
+        
+        function dropBall() {
+            balls.push(new Ball(canvas.width / 2, 50));
+        }
+        
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPegs();
+            drawSlots();
+            balls.forEach(ball => {
+                ball.move();
+                ball.draw();
+            });
+            requestAnimationFrame(update);
+        }
+        
+        createPegs();
+        update();
+    </script>
+</body>
+</html>
